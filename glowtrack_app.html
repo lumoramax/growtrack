@@ -1,0 +1,768 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  :root { --orange: #F97316; --orange-light: #FFF7ED; --orange-mid: #FED7AA; --grey-bg: #F3F4F6; --text: #111827; --text2: #6B7280; --text3: #9CA3AF; --white: #ffffff; --radius: 14px; --radius-sm: 10px; }
+  #app { width: 100%; max-width: 390px; margin: 0 auto; background: var(--white); min-height: 700px; position: relative; overflow: hidden; border-radius: 24px; border: 0.5px solid #E5E7EB; }
+  .screen { display: none; flex-direction: column; min-height: 700px; padding-bottom: 80px; }
+  .screen.active { display: flex; }
+  .nav { position: absolute; bottom: 0; left: 0; right: 0; background: var(--white); border-top: 0.5px solid #E5E7EB; display: flex; padding: 10px 0 16px; z-index: 100; }
+  .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; padding: 4px 0; transition: all 0.15s; }
+  .nav-item .ti { font-size: 22px; color: var(--text3); transition: color 0.15s; }
+  .nav-item span { font-size: 10px; color: var(--text3); font-weight: 500; transition: color 0.15s; }
+  .nav-item.active .ti, .nav-item.active span { color: var(--orange); }
+  .btn-primary { background: var(--orange); color: white; border: none; border-radius: var(--radius); padding: 16px 24px; font-size: 16px; font-weight: 600; width: 100%; cursor: pointer; transition: transform 0.1s, opacity 0.1s; letter-spacing: -0.2px; }
+  .btn-primary:active { transform: scale(0.98); opacity: 0.9; }
+  .btn-outline { background: transparent; color: var(--orange); border: 1.5px solid var(--orange); border-radius: var(--radius); padding: 14px 24px; font-size: 15px; font-weight: 600; width: 100%; cursor: pointer; transition: all 0.15s; }
+  .btn-outline:hover { background: var(--orange-light); }
+  .card { background: var(--grey-bg); border-radius: var(--radius); padding: 16px; }
+  .card-white { background: var(--white); border-radius: var(--radius); padding: 16px; border: 0.5px solid #E5E7EB; }
+  .section-title { font-size: 18px; font-weight: 700; color: var(--text); letter-spacing: -0.4px; }
+  .label { font-size: 12px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; }
+  .badge { display: inline-flex; align-items: center; gap: 5px; background: var(--orange-light); color: #C2410C; font-size: 12px; font-weight: 600; padding: 5px 12px; border-radius: 20px; }
+
+  /* WELCOME */
+  #welcome { background: var(--white); justify-content: space-between; padding: 0; }
+  .welcome-top { background: var(--orange-light); padding: 60px 28px 40px; flex: 1; display: flex; flex-direction: column; justify-content: center; }
+  .welcome-logo { width: 52px; height: 52px; background: var(--orange); border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-bottom: 28px; }
+  .welcome-logo .ti { font-size: 26px; color: white; }
+  .welcome-title { font-size: 30px; font-weight: 700; color: var(--text); line-height: 1.2; letter-spacing: -0.8px; margin-bottom: 12px; }
+  .welcome-title span { color: var(--orange); }
+  .welcome-sub { font-size: 15px; color: var(--text2); line-height: 1.6; margin-bottom: 24px; }
+  .welcome-bottom { padding: 28px; }
+
+  /* ONBOARDING */
+  #onboarding { padding: 24px; }
+  .ob-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; }
+  .ob-back { background: var(--grey-bg); border: none; border-radius: 10px; width: 40px; height: 40px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .ob-back .ti { font-size: 18px; color: var(--text2); }
+  .progress-dots { display: flex; gap: 6px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: #E5E7EB; transition: all 0.2s; }
+  .dot.active { width: 24px; border-radius: 4px; background: var(--orange); }
+  .dot.done { background: var(--orange); opacity: 0.4; }
+  .ob-step { display: none; }
+  .ob-step.active { display: block; animation: fadeUp 0.25s ease; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  .ob-q { font-size: 24px; font-weight: 700; color: var(--text); line-height: 1.25; letter-spacing: -0.5px; margin-bottom: 8px; }
+  .ob-hint { font-size: 14px; color: var(--text3); margin-bottom: 28px; }
+  .ob-options { display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; }
+  .ob-opt { background: var(--grey-bg); border: 1.5px solid transparent; border-radius: var(--radius); padding: 16px 18px; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 14px; }
+  .ob-opt:hover { background: var(--orange-light); }
+  .ob-opt.selected { background: var(--orange-light); border-color: var(--orange); }
+  .ob-opt-icon { width: 40px; height: 40px; background: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .ob-opt-icon .ti { font-size: 20px; color: var(--text2); }
+  .ob-opt.selected .ob-opt-icon .ti { color: var(--orange); }
+  .ob-opt-text { font-size: 15px; font-weight: 600; color: var(--text); }
+  .ob-opt-sub { font-size: 12px; color: var(--text3); margin-top: 2px; }
+  .ob-opt.selected .ob-opt-text { color: var(--orange); }
+  .highlight-badge { font-size: 10px; background: var(--orange); color: white; padding: 2px 8px; border-radius: 20px; margin-left: 8px; }
+
+  /* READY SCREEN */
+  .ready-card { background: linear-gradient(135deg, #FFF7ED 0%, #FED7AA 100%); border-radius: 20px; padding: 28px; text-align: center; margin: 24px 0; }
+  .ready-icon { font-size: 52px; margin-bottom: 12px; }
+  .ready-title { font-size: 22px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+  .ready-sub { font-size: 14px; color: var(--text2); line-height: 1.6; }
+  .ready-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 24px; }
+  .ready-stat { background: white; border-radius: 12px; padding: 12px 8px; text-align: center; }
+  .ready-stat .val { font-size: 18px; font-weight: 700; color: var(--orange); }
+  .ready-stat .lbl { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+  /* HOME */
+  #home { padding: 0; }
+  .home-hero { background: var(--orange); padding: 48px 24px 32px; position: relative; overflow: hidden; }
+  .home-hero::after { content: ''; position: absolute; right: -20px; top: -20px; width: 120px; height: 120px; background: rgba(255,255,255,0.08); border-radius: 50%; }
+  .home-greet { font-size: 13px; color: rgba(255,255,255,0.7); font-weight: 500; margin-bottom: 4px; }
+  .home-title { font-size: 24px; font-weight: 700; color: white; margin-bottom: 16px; letter-spacing: -0.4px; }
+  .home-day-row { display: flex; align-items: center; gap: 10px; }
+  .home-day-badge { background: rgba(255,255,255,0.15); border-radius: 20px; padding: 6px 14px; }
+  .home-day-badge span { font-size: 13px; color: white; font-weight: 600; }
+  .streak-badge { background: rgba(255,255,255,0.15); border-radius: 20px; padding: 6px 14px; display: flex; align-items: center; gap: 5px; }
+  .streak-badge .ti { font-size: 14px; color: #FCD34D; }
+  .streak-badge span { font-size: 13px; color: white; font-weight: 600; }
+  .home-body { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+  .progress-bar-wrap { background: white; border-radius: var(--radius); padding: 16px; border: 0.5px solid #E5E7EB; }
+  .progress-label { display: flex; justify-content: space-between; margin-bottom: 10px; }
+  .progress-label span { font-size: 13px; color: var(--text2); font-weight: 500; }
+  .progress-label strong { font-size: 13px; color: var(--text); }
+  .pbar { height: 6px; background: #F3F4F6; border-radius: 3px; overflow: hidden; }
+  .pbar-fill { height: 100%; background: var(--orange); border-radius: 3px; transition: width 0.6s ease; }
+  .aura-card { background: var(--grey-bg); border-radius: var(--radius); padding: 18px; }
+  .aura-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+  .aura-score-big { font-size: 42px; font-weight: 700; color: var(--orange); line-height: 1; }
+  .aura-score-big span { font-size: 16px; font-weight: 500; color: var(--text3); }
+  .aura-label { background: var(--orange-light); color: #C2410C; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; margin-top: 6px; display: inline-block; }
+  .aura-meters { display: flex; flex-direction: column; gap: 10px; }
+  .aura-meter-row { display: flex; align-items: center; gap: 10px; }
+  .aura-meter-label { font-size: 12px; color: var(--text2); font-weight: 500; width: 100px; flex-shrink: 0; }
+  .aura-meter-bar { flex: 1; height: 4px; background: #E5E7EB; border-radius: 2px; overflow: hidden; }
+  .aura-meter-fill { height: 100%; background: var(--orange); border-radius: 2px; }
+  .aura-meter-val { font-size: 11px; font-weight: 600; color: var(--text2); width: 50px; text-align: right; }
+  .upload-btn-card { background: var(--orange); border-radius: var(--radius); padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: opacity 0.15s; }
+  .upload-btn-card:active { opacity: 0.9; }
+  .upload-btn-left { display: flex; flex-direction: column; gap: 2px; }
+  .upload-btn-left .title { font-size: 15px; font-weight: 700; color: white; }
+  .upload-btn-left .sub { font-size: 12px; color: rgba(255,255,255,0.7); }
+  .upload-btn-icon { width: 40px; height: 40px; background: rgba(255,255,255,0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+  .upload-btn-icon .ti { font-size: 22px; color: white; }
+  .tasks-card { background: white; border-radius: var(--radius); padding: 16px; border: 0.5px solid #E5E7EB; }
+  .task-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 0.5px solid #F3F4F6; }
+  .task-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .task-check { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid #D1D5DB; display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer; transition: all 0.15s; }
+  .task-check.done { background: var(--orange); border-color: var(--orange); }
+  .task-check.done .ti { color: white; font-size: 12px; }
+  .task-check .ti { font-size: 12px; color: transparent; }
+  .task-text { font-size: 14px; color: var(--text); font-weight: 500; }
+  .task-text.done { color: var(--text3); text-decoration: line-through; }
+
+  /* UPLOAD SCREEN */
+  #upload { padding: 24px; }
+  .upload-header { margin-bottom: 28px; }
+  .upload-day { font-size: 13px; color: var(--text3); font-weight: 500; margin-bottom: 4px; }
+  .upload-title { font-size: 24px; font-weight: 700; color: var(--text); letter-spacing: -0.4px; }
+  .photo-drop { border: 2px dashed #D1D5DB; border-radius: var(--radius); padding: 40px 20px; text-align: center; cursor: pointer; transition: all 0.2s; margin-bottom: 20px; background: #FAFAFA; }
+  .photo-drop:hover { border-color: var(--orange); background: var(--orange-light); }
+  .photo-drop .ti { font-size: 40px; color: var(--text3); margin-bottom: 10px; }
+  .photo-drop.has-photo { background: var(--orange-light); border-color: var(--orange); border-style: solid; }
+  .photo-drop.has-photo .ti { color: var(--orange); }
+  .photo-drop p { font-size: 14px; color: var(--text2); }
+  .photo-drop p strong { color: var(--text); }
+  .photo-preview { width: 100%; aspect-ratio: 3/4; background: var(--orange-light); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; margin-bottom: 20px; position: relative; overflow: hidden; }
+  .photo-preview .ti { font-size: 60px; color: var(--orange-mid); }
+  .photo-tips { display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; }
+  .tip-item { display: flex; align-items: center; gap: 10px; }
+  .tip-item .ti { font-size: 16px; color: var(--orange); }
+  .tip-item span { font-size: 13px; color: var(--text2); }
+
+  /* ANALYSIS SCREEN */
+  #analysis { padding: 24px; background: white; }
+  .analysis-header { text-align: center; margin-bottom: 24px; padding-top: 12px; }
+  .analysis-emoji { font-size: 40px; margin-bottom: 8px; }
+  .analysis-title { font-size: 22px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .analysis-sub { font-size: 14px; color: var(--text3); }
+  .score-circle-wrap { display: flex; justify-content: center; margin-bottom: 24px; }
+  .score-circle { width: 140px; height: 140px; border-radius: 50%; background: var(--orange-light); border: 6px solid var(--orange); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .score-num { font-size: 44px; font-weight: 700; color: var(--orange); line-height: 1; }
+  .score-denom { font-size: 14px; color: var(--text3); }
+  .score-label-big { text-align: center; margin-bottom: 24px; }
+  .score-label-pill { display: inline-block; background: var(--orange); color: white; font-size: 14px; font-weight: 700; padding: 8px 20px; border-radius: 20px; }
+  .analysis-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+  .analysis-metric { background: var(--grey-bg); border-radius: var(--radius-sm); padding: 14px; }
+  .metric-label { font-size: 11px; color: var(--text3); font-weight: 500; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 6px; }
+  .metric-val { font-size: 15px; font-weight: 700; color: var(--text); }
+  .metric-val.green { color: #16A34A; }
+  .metric-val.orange { color: var(--orange); }
+  .metric-val.red { color: #DC2626; }
+  .trend-card { background: var(--grey-bg); border-radius: var(--radius); padding: 16px; margin-bottom: 20px; }
+  .trend-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .trend-row:last-child { margin-bottom: 0; }
+  .trend-key { font-size: 13px; color: var(--text2); font-weight: 500; display: flex; align-items: center; gap: 6px; }
+  .trend-key .ti { font-size: 15px; }
+  .trend-tag { font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+  .tag-green { background: #DCFCE7; color: #16A34A; }
+  .tag-orange { background: var(--orange-light); color: #C2410C; }
+  .tag-red { background: #FEE2E2; color: #DC2626; }
+
+  /* PROGRESS */
+  #progress { padding: 24px; }
+  .prog-header { margin-bottom: 24px; }
+  .prog-title { font-size: 22px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .prog-sub { font-size: 14px; color: var(--text3); }
+  .before-after { background: var(--grey-bg); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; }
+  .ba-title { font-size: 14px; font-weight: 600; color: var(--text2); margin-bottom: 12px; }
+  .ba-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .ba-cell { background: white; border-radius: 10px; padding: 12px; text-align: center; }
+  .ba-cell-img { width: 100%; aspect-ratio: 3/4; background: #F3F4F6; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; }
+  .ba-cell-img .ti { font-size: 36px; color: #D1D5DB; }
+  .ba-label { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.4px; }
+  .ba-day { font-size: 12px; color: var(--text2); margin-top: 2px; }
+  .score-graph { background: white; border-radius: var(--radius); padding: 16px; border: 0.5px solid #E5E7EB; margin-bottom: 16px; }
+  .graph-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 14px; }
+  .mini-chart { height: 80px; position: relative; }
+  .chart-bars { display: flex; align-items: flex-end; gap: 5px; height: 100%; }
+  .cbar { flex: 1; border-radius: 3px 3px 0 0; transition: all 0.3s; min-width: 0; }
+  .cbar.highlight { background: var(--orange); }
+  .cbar.normal { background: var(--orange-mid); }
+  .timeline-section { background: var(--grey-bg); border-radius: var(--radius); padding: 16px; }
+  .tl-title { font-size: 14px; font-weight: 600; color: var(--text2); margin-bottom: 14px; }
+  .tl-item { display: flex; gap: 12px; margin-bottom: 14px; }
+  .tl-item:last-child { margin-bottom: 0; }
+  .tl-dot-col { display: flex; flex-direction: column; align-items: center; }
+  .tl-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--orange); flex-shrink: 0; margin-top: 4px; }
+  .tl-dot.empty { background: #D1D5DB; }
+  .tl-line { width: 1.5px; flex: 1; background: #E5E7EB; margin: 4px 0; }
+  .tl-content { flex: 1; }
+  .tl-day { font-size: 11px; color: var(--text3); font-weight: 500; }
+  .tl-score { font-size: 14px; font-weight: 700; color: var(--text); }
+  .tl-label { font-size: 12px; color: var(--text2); }
+
+  /* PROFILE */
+  #profile { padding: 24px; }
+  .profile-top { display: flex; flex-direction: column; align-items: center; padding: 16px 0 28px; }
+  .avatar { width: 72px; height: 72px; border-radius: 50%; background: var(--orange-light); border: 3px solid var(--orange); display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
+  .avatar .ti { font-size: 34px; color: var(--orange); }
+  .profile-name { font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .profile-since { font-size: 13px; color: var(--text3); }
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+  .stat-box { background: var(--grey-bg); border-radius: var(--radius-sm); padding: 16px; }
+  .stat-box .val { font-size: 28px; font-weight: 700; color: var(--orange); line-height: 1; margin-bottom: 4px; }
+  .stat-box .lbl { font-size: 12px; color: var(--text3); font-weight: 500; }
+  .goal-card { background: var(--orange-light); border-radius: var(--radius); padding: 16px; margin-bottom: 14px; border: 1px solid var(--orange-mid); }
+  .goal-card-title { font-size: 13px; font-weight: 600; color: #C2410C; margin-bottom: 6px; }
+  .goal-card-val { font-size: 16px; font-weight: 700; color: var(--text); }
+  .settings-list { background: white; border-radius: var(--radius); border: 0.5px solid #E5E7EB; overflow: hidden; }
+  .settings-item { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 0.5px solid #F3F4F6; cursor: pointer; transition: background 0.1s; }
+  .settings-item:last-child { border-bottom: none; }
+  .settings-item:hover { background: #FAFAFA; }
+  .settings-item .ti { font-size: 18px; color: var(--text2); }
+  .settings-item-text { flex: 1; font-size: 14px; color: var(--text); font-weight: 500; }
+  .settings-item .ti-chevron-right { font-size: 16px; color: var(--text3); }
+
+  .analyzing-overlay { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; text-align: center; }
+  .spin-ring { width: 64px; height: 64px; border: 4px solid var(--orange-mid); border-top-color: var(--orange); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 20px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .analyzing-title { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+  .analyzing-sub { font-size: 14px; color: var(--text3); line-height: 1.6; }
+</style>
+
+<div id="app" role="main">
+  <h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;">GlowTrack — 90-day glow-up and transformation tracker</h2>
+
+  <!-- WELCOME -->
+  <div class="screen active" id="welcome" style="min-height:700px; display:flex; flex-direction:column; padding-bottom:0;">
+    <div class="welcome-top" style="flex:1;">
+      <div class="welcome-logo"><i class="ti ti-sparkles" aria-hidden="true"></i></div>
+      <div class="badge" style="margin-bottom:20px;">Built for Gen Z India 🇮🇳</div>
+      <div class="welcome-title">Start Your <span>90-Day</span> Glow-Up Journey</div>
+      <div class="welcome-sub">Track your transformation step by step. Aura scoring, streak tracking & more.</div>
+      <div style="display:flex; gap:16px; margin-top:8px;">
+        <div style="display:flex;align-items:center;gap:6px;"><i class="ti ti-camera" style="font-size:15px;color:var(--orange);" aria-hidden="true"></i><span style="font-size:13px;color:var(--text2);font-weight:500;">Daily photos</span></div>
+        <div style="display:flex;align-items:center;gap:6px;"><i class="ti ti-chart-line" style="font-size:15px;color:var(--orange);" aria-hidden="true"></i><span style="font-size:13px;color:var(--text2);font-weight:500;">Aura scores</span></div>
+        <div style="display:flex;align-items:center;gap:6px;"><i class="ti ti-flame" style="font-size:15px;color:var(--orange);" aria-hidden="true"></i><span style="font-size:13px;color:var(--text2);font-weight:500;">Streaks</span></div>
+      </div>
+    </div>
+    <div class="welcome-bottom" style="padding:28px;">
+      <button class="btn-primary" onclick="goTo('onboarding'); showOBStep(1)">Get Started →</button>
+      <p style="text-align:center;font-size:12px;color:var(--text3);margin-top:12px;">Free to use · No sign-up needed</p>
+    </div>
+  </div>
+
+  <!-- ONBOARDING -->
+  <div class="screen" id="onboarding">
+    <div class="ob-header">
+      <button class="ob-back" onclick="obBack()" aria-label="Go back"><i class="ti ti-arrow-left" aria-hidden="true"></i></button>
+      <div class="progress-dots" id="ob-dots">
+        <div class="dot active" id="d1"></div>
+        <div class="dot" id="d2"></div>
+        <div class="dot" id="d3"></div>
+        <div class="dot" id="d4"></div>
+      </div>
+      <div style="width:40px;"></div>
+    </div>
+
+    <!-- Step 1 -->
+    <div class="ob-step active" id="obs1">
+      <div class="ob-q">What's your main goal?</div>
+      <div class="ob-hint">Choose what you want to work on most</div>
+      <div class="ob-options">
+        <div class="ob-opt" onclick="selectOpt(this,'goal','Glow-up')">
+          <div class="ob-opt-icon"><i class="ti ti-sparkles" aria-hidden="true"></i></div>
+          <div><div class="ob-opt-text">Glow-up (face / looks)</div><div class="ob-opt-sub">Skincare, appearance, presence</div></div>
+        </div>
+        <div class="ob-opt" onclick="selectOpt(this,'goal','Fitness')">
+          <div class="ob-opt-icon"><i class="ti ti-run" aria-hidden="true"></i></div>
+          <div><div class="ob-opt-text">Fitness</div><div class="ob-opt-sub">Body, strength, endurance</div></div>
+        </div>
+        <div class="ob-opt" onclick="selectOpt(this,'goal','Confidence')">
+          <div class="ob-opt-icon"><i class="ti ti-award" aria-hidden="true"></i></div>
+          <div><div class="ob-opt-text">Confidence</div><div class="ob-opt-sub">Mindset, social energy</div></div>
+        </div>
+        <div class="ob-opt" onclick="selectOpt(this,'goal','Discipline')">
+          <div class="ob-opt-icon"><i class="ti ti-target" aria-hidden="true"></i></div>
+          <div><div class="ob-opt-text">Discipline</div><div class="ob-opt-sub">Habits, consistency, routine</div></div>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="goOBNext(1)">Continue →</button>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="ob-step" id="obs2">
+      <div class="ob-q">How long can you commit?</div>
+      <div class="ob-hint">Be honest — consistency beats intensity</div>
+      <div class="ob-options">
+        <div class="ob-opt" onclick="selectOpt(this,'days','30')">
+          <div class="ob-opt-icon"><i class="ti ti-calendar-event" aria-hidden="true"></i></div>
+          <div><div class="ob-opt-text">30 days</div><div class="ob-opt-sub">A solid first step</div></div>
+        </div>
+        <div class="ob-opt" onclick="selectOpt(this,'days','60')">
+          <div class="ob-opt-icon"><i class="ti ti-calendar-week" aria-hidden="true"></i></div>
+          <div><div class="ob-opt-text">60 days</div><div class="ob-opt-sub">Real visible change</div></div>
+        </div>
+        <div class="ob-opt selected" onclick="selectOpt(this,'days','90')" id="opt90">
+          <div class="ob-opt-icon"><i class="ti ti-calendar" aria-hidden="true"></i></div>
+          <div><div class="ob-opt-text">90 days <span class="highlight-badge">Recommended</span></div><div class="ob-opt-sub">Full transformation</div></div>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="goOBNext(2)">Continue →</button>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="ob-step" id="obs3">
+      <div class="ob-q">Your current level?</div>
+      <div class="ob-hint">We'll set the right pace for you</div>
+      <div class="ob-options">
+        <div class="ob-opt" onclick="selectOpt(this,'level','Beginner')">
+          <div class="ob-opt-icon"><i class="ti ti-seedling" aria-hidden="true"></i></div>
+          <div><div class="ob-opt-text">Beginner</div><div class="ob-opt-sub">Starting from scratch, let's go</div></div>
+        </div>
+        <div class="ob-opt" onclick="selectOpt(this,'level','Intermediate')">
+          <div class="ob-opt-icon"><i class="ti ti-trending-up" aria-hidden="true"></i></div>
+          <div><div class="ob-opt-text">Intermediate</div><div class="ob-opt-sub">I have some habits going</div></div>
+        </div>
+        <div class="ob-opt" onclick="selectOpt(this,'level','Serious')">
+          <div class="ob-opt-icon"><i class="ti ti-bolt" aria-hidden="true"></i></div>
+          <div><div class="ob-opt-text">Serious</div><div class="ob-opt-sub">All in, no excuses</div></div>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="goOBNext(3)">Continue →</button>
+    </div>
+
+    <!-- Step 4 / Ready -->
+    <div class="ob-step" id="obs4">
+      <div class="ready-card">
+        <div class="ready-icon">🔥</div>
+        <div class="ready-title">Your Glow-Up Plan is Ready</div>
+        <div class="ready-sub">Your personalised 90-day transformation journey starts today. No shortcuts — just daily effort.</div>
+      </div>
+      <div class="ready-stats">
+        <div class="ready-stat"><div class="val" id="plan-days">90</div><div class="lbl">Days</div></div>
+        <div class="ready-stat"><div class="val">Daily</div><div class="lbl">Check-ins</div></div>
+        <div class="ready-stat"><div class="val">🇮🇳</div><div class="lbl">Built for you</div></div>
+      </div>
+      <div style="background:var(--grey-bg);border-radius:var(--radius);padding:14px;margin-bottom:24px;">
+        <div style="font-size:12px;color:var(--text3);margin-bottom:8px;font-weight:500;">YOUR PLAN SUMMARY</div>
+        <div style="font-size:14px;color:var(--text);line-height:1.8;">
+          Goal: <strong id="sum-goal">—</strong><br>
+          Duration: <strong id="sum-days">90</strong> days<br>
+          Level: <strong id="sum-level">—</strong>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="startApp()">Start Transformation 🚀</button>
+    </div>
+  </div>
+
+  <!-- HOME -->
+  <div class="screen" id="home">
+    <div class="home-hero">
+      <div class="home-greet">Good morning ✨</div>
+      <div class="home-title">Keep the streak alive.</div>
+      <div class="home-day-row">
+        <div class="home-day-badge"><span id="hero-day">Day 7 of 90</span></div>
+        <div class="streak-badge"><i class="ti ti-flame" aria-hidden="true"></i><span id="hero-streak">7 day streak</span></div>
+      </div>
+    </div>
+    <div class="home-body">
+      <div class="progress-bar-wrap">
+        <div class="progress-label"><span>Transformation progress</span><strong id="prog-pct">7.8%</strong></div>
+        <div class="pbar"><div class="pbar-fill" id="pbar-fill" style="width:7.8%"></div></div>
+      </div>
+      <div class="aura-card">
+        <div style="font-size:12px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;">Latest Aura Score</div>
+        <div class="aura-top">
+          <div>
+            <div class="aura-score-big" id="home-aura-score">72<span>/100</span></div>
+            <div class="aura-label" id="home-aura-label">Strong Aura</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:12px;color:var(--text3);margin-bottom:4px;">vs yesterday</div>
+            <div style="font-size:15px;font-weight:700;color:#16A34A;">+3 pts ↑</div>
+          </div>
+        </div>
+        <div class="aura-meters">
+          <div class="aura-meter-row">
+            <div class="aura-meter-label">Skin consistency</div>
+            <div class="aura-meter-bar"><div class="aura-meter-fill" id="hm-skin" style="width:75%"></div></div>
+            <div class="aura-meter-val">Good</div>
+          </div>
+          <div class="aura-meter-row">
+            <div class="aura-meter-label">Confidence level</div>
+            <div class="aura-meter-bar"><div class="aura-meter-fill" id="hm-conf" style="width:60%"></div></div>
+            <div class="aura-meter-val">Building</div>
+          </div>
+          <div class="aura-meter-row">
+            <div class="aura-meter-label">Glow trend</div>
+            <div class="aura-meter-bar"><div class="aura-meter-fill" id="hm-glow" style="width:80%"></div></div>
+            <div class="aura-meter-val">Rising ↑</div>
+          </div>
+        </div>
+      </div>
+      <div class="upload-btn-card" onclick="goToUpload()">
+        <div class="upload-btn-left">
+          <div class="title">Upload Today's Photo</div>
+          <div class="sub">Keep the streak going</div>
+        </div>
+        <div class="upload-btn-icon"><i class="ti ti-camera-plus" aria-hidden="true"></i></div>
+      </div>
+      <div class="tasks-card">
+        <div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px;">Today's Habits</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:12px;">Tap to mark complete</div>
+        <div class="task-item">
+          <div class="task-check done" onclick="toggleTask(this)"><i class="ti ti-check" aria-hidden="true"></i></div>
+          <div class="task-text done">Morning skincare routine</div>
+        </div>
+        <div class="task-item">
+          <div class="task-check done" onclick="toggleTask(this)"><i class="ti ti-check" aria-hidden="true"></i></div>
+          <div class="task-text done">8 glasses of water</div>
+        </div>
+        <div class="task-item">
+          <div class="task-check" onclick="toggleTask(this)"><i class="ti ti-check" aria-hidden="true"></i></div>
+          <div class="task-text">30 min workout</div>
+        </div>
+        <div class="task-item">
+          <div class="task-check" onclick="toggleTask(this)"><i class="ti ti-check" aria-hidden="true"></i></div>
+          <div class="task-text">Upload daily photo</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- UPLOAD -->
+  <div class="screen" id="upload" style="padding-bottom:100px;">
+    <div class="upload-header">
+      <div class="upload-day" id="upload-day-label">Day 7 of 90</div>
+      <div class="upload-title">Today's Transformation Check-In</div>
+    </div>
+    <div class="photo-drop" id="photo-drop" onclick="simulateUpload()">
+      <i class="ti ti-camera" aria-hidden="true"></i>
+      <p><strong>Tap to upload photo</strong></p>
+      <p style="margin-top:4px;">Front-facing, good lighting works best</p>
+    </div>
+    <div class="photo-tips">
+      <div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Photo Tips</div>
+      <div class="tip-item"><i class="ti ti-sun" aria-hidden="true"></i><span>Natural light, face front window</span></div>
+      <div class="tip-item"><i class="ti ti-mood-smile" aria-hidden="true"></i><span>Neutral expression, same angle daily</span></div>
+      <div class="tip-item"><i class="ti ti-clock" aria-hidden="true"></i><span>Best time: morning before makeup</span></div>
+    </div>
+    <button class="btn-primary" id="analyze-btn" onclick="runAnalysis()" style="opacity:0.4;pointer-events:none;">Analyse My Aura →</button>
+  </div>
+
+  <!-- ANALYSIS -->
+  <div class="screen" id="analysis" style="padding-bottom:100px;">
+    <div class="analysis-header">
+      <div class="analysis-emoji">✨</div>
+      <div class="analysis-title">Your Aura Score</div>
+      <div class="analysis-sub" id="analysis-day">Day 7 result</div>
+    </div>
+    <div class="score-circle-wrap">
+      <div class="score-circle">
+        <div class="score-num" id="an-score">72</div>
+        <div class="score-denom">out of 100</div>
+      </div>
+    </div>
+    <div class="score-label-big">
+      <span class="score-label-pill" id="an-label">Strong Aura</span>
+    </div>
+    <div class="analysis-grid">
+      <div class="analysis-metric">
+        <div class="metric-label">Skin Consistency</div>
+        <div class="metric-val green" id="an-skin">Good</div>
+      </div>
+      <div class="analysis-metric">
+        <div class="metric-label">Confidence Level</div>
+        <div class="metric-val orange" id="an-conf">Moderate</div>
+      </div>
+      <div class="analysis-metric">
+        <div class="metric-label">Glow Trend</div>
+        <div class="metric-val green" id="an-glow">Improving</div>
+      </div>
+      <div class="analysis-metric">
+        <div class="metric-label">Streak Bonus</div>
+        <div class="metric-val orange" id="an-streak">+7 pts</div>
+      </div>
+    </div>
+    <div class="trend-card">
+      <div style="font-size:13px;font-weight:600;color:var(--text2);margin-bottom:12px;">Transformation Signals</div>
+      <div class="trend-row">
+        <div class="trend-key"><i class="ti ti-droplet" aria-hidden="true"></i> Hydration</div>
+        <div class="trend-tag tag-green" id="tr-hyd">On Track</div>
+      </div>
+      <div class="trend-row">
+        <div class="trend-key"><i class="ti ti-moon" aria-hidden="true"></i> Sleep quality</div>
+        <div class="trend-tag tag-orange" id="tr-sleep">Needs Work</div>
+      </div>
+      <div class="trend-row">
+        <div class="trend-key"><i class="ti ti-flame" aria-hidden="true"></i> Streak momentum</div>
+        <div class="trend-tag tag-green" id="tr-streak">Strong</div>
+      </div>
+    </div>
+    <button class="btn-primary" style="margin-top:8px;" onclick="goTo('home'); setActiveNav('home')">Back to Dashboard</button>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="screen" id="progress">
+    <div class="prog-header">
+      <div class="prog-title">Your Transformation</div>
+      <div class="prog-sub">90-day journey overview</div>
+    </div>
+    <div class="before-after">
+      <div class="ba-title">Before vs After</div>
+      <div class="ba-row">
+        <div class="ba-cell">
+          <div class="ba-cell-img"><i class="ti ti-user" aria-hidden="true"></i></div>
+          <div class="ba-label">Before</div>
+          <div class="ba-day">Day 1</div>
+        </div>
+        <div class="ba-cell">
+          <div class="ba-cell-img" style="background:var(--orange-light);"><i class="ti ti-user" style="color:var(--orange-mid);" aria-hidden="true"></i></div>
+          <div class="ba-label">Latest</div>
+          <div class="ba-day">Day 7</div>
+        </div>
+      </div>
+    </div>
+    <div class="score-graph">
+      <div class="graph-title">Aura Score — Last 7 days</div>
+      <div class="mini-chart">
+        <div class="chart-bars" id="chart-bars" style="height:80px;"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:8px;">
+        <span style="font-size:11px;color:var(--text3);">Day 1</span>
+        <span style="font-size:11px;color:var(--text3);">Today</span>
+      </div>
+    </div>
+    <div class="timeline-section">
+      <div class="tl-title">Recent Activity</div>
+      <div id="timeline-items"></div>
+    </div>
+  </div>
+
+  <!-- PROFILE -->
+  <div class="screen" id="profile">
+    <div class="profile-top">
+      <div class="avatar"><i class="ti ti-user" aria-hidden="true"></i></div>
+      <div class="profile-name">Glow Warrior</div>
+      <div class="profile-since" id="prof-since">Started — Jun 2025</div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-box"><div class="val" id="prof-days">7</div><div class="lbl">Days completed</div></div>
+      <div class="stat-box"><div class="val" id="prof-streak">7</div><div class="lbl">Current streak</div></div>
+      <div class="stat-box"><div class="val" id="prof-avg">68</div><div class="lbl">Avg aura score</div></div>
+      <div class="stat-box"><div class="val" id="prof-remaining">83</div><div class="lbl">Days remaining</div></div>
+    </div>
+    <div class="goal-card">
+      <div class="goal-card-title">YOUR GOAL</div>
+      <div class="goal-card-val" id="prof-goal">Glow-up (face / looks)</div>
+    </div>
+    <div class="settings-list">
+      <div class="settings-item"><i class="ti ti-bell" aria-hidden="true"></i><span class="settings-item-text">Daily reminder</span><i class="ti ti-chevron-right" aria-hidden="true"></i></div>
+      <div class="settings-item"><i class="ti ti-calendar" aria-hidden="true"></i><span class="settings-item-text">My 90-day plan</span><i class="ti ti-chevron-right" aria-hidden="true"></i></div>
+      <div class="settings-item"><i class="ti ti-share" aria-hidden="true"></i><span class="settings-item-text">Share progress</span><i class="ti ti-chevron-right" aria-hidden="true"></i></div>
+      <div class="settings-item"><i class="ti ti-refresh" aria-hidden="true"></i><span class="settings-item-text">Reset journey</span><i class="ti ti-chevron-right" aria-hidden="true"></i></div>
+    </div>
+  </div>
+
+  <!-- NAV BAR -->
+  <nav class="nav" id="main-nav" style="display:none;" aria-label="Main navigation">
+    <div class="nav-item active" id="nav-home" onclick="goTo('home'); setActiveNav('home')">
+      <i class="ti ti-home" aria-hidden="true"></i><span>Home</span>
+    </div>
+    <div class="nav-item" id="nav-upload" onclick="goToUpload()">
+      <i class="ti ti-camera-plus" aria-hidden="true"></i><span>Upload</span>
+    </div>
+    <div class="nav-item" id="nav-progress" onclick="goTo('progress'); setActiveNav('progress')">
+      <i class="ti ti-chart-line" aria-hidden="true"></i><span>Progress</span>
+    </div>
+    <div class="nav-item" id="nav-profile" onclick="goTo('profile'); setActiveNav('profile')">
+      <i class="ti ti-user" aria-hidden="true"></i><span>Profile</span>
+    </div>
+  </nav>
+</div>
+
+<script>
+const state = {
+  currentDay: 7,
+  streak: 7,
+  totalDays: 90,
+  goal: 'Glow-up (face / looks)',
+  level: 'Beginner',
+  scores: [55, 58, 61, 64, 62, 69, 72],
+  photoUploaded: false,
+  obStep: 1,
+  obData: { goal: null, days: '90', level: null }
+};
+
+function goTo(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function setActiveNav(id) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const nav = document.getElementById('nav-' + id);
+  if (nav) nav.classList.add('active');
+}
+
+function showOBStep(n) {
+  state.obStep = n;
+  document.querySelectorAll('.ob-step').forEach(s => s.classList.remove('active'));
+  document.getElementById('obs' + n).classList.add('active');
+  ['d1','d2','d3','d4'].forEach((id, i) => {
+    const d = document.getElementById(id);
+    d.className = 'dot';
+    if (i + 1 === n) d.classList.add('active');
+    else if (i + 1 < n) d.classList.add('done');
+  });
+}
+
+function obBack() {
+  if (state.obStep <= 1) { goTo('welcome'); return; }
+  showOBStep(state.obStep - 1);
+}
+
+function selectOpt(el, key, val) {
+  const parent = el.closest('.ob-options');
+  parent.querySelectorAll('.ob-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  state.obData[key] = val;
+}
+
+function goOBNext(step) {
+  if (step < 4) showOBStep(step + 1);
+  if (step === 3) {
+    document.getElementById('sum-goal').textContent = state.obData.goal || 'Glow-up';
+    document.getElementById('sum-days').textContent = state.obData.days || '90';
+    document.getElementById('sum-level').textContent = state.obData.level || 'Beginner';
+    document.getElementById('plan-days').textContent = state.obData.days || '90';
+    showOBStep(4);
+  }
+}
+
+function startApp() {
+  state.goal = state.obData.goal || 'Glow-up (face / looks)';
+  state.level = state.obData.level || 'Beginner';
+  state.totalDays = parseInt(state.obData.days) || 90;
+  document.getElementById('prof-goal').textContent = state.goal;
+  document.getElementById('main-nav').style.display = 'flex';
+  goTo('home');
+  setActiveNav('home');
+  updateHome();
+  buildChart();
+  buildTimeline();
+}
+
+function updateHome() {
+  const pct = Math.round((state.currentDay / state.totalDays) * 100 * 10) / 10;
+  document.getElementById('hero-day').textContent = 'Day ' + state.currentDay + ' of ' + state.totalDays;
+  document.getElementById('hero-streak').textContent = state.streak + ' day streak';
+  document.getElementById('prog-pct').textContent = pct + '%';
+  document.getElementById('pbar-fill').style.width = pct + '%';
+  const latest = state.scores[state.scores.length - 1];
+  document.getElementById('home-aura-score').innerHTML = latest + '<span>/100</span>';
+  document.getElementById('home-aura-label').textContent = getAuraLabel(latest);
+  document.getElementById('upload-day-label').textContent = 'Day ' + state.currentDay + ' of ' + state.totalDays;
+  document.getElementById('prof-days').textContent = state.currentDay;
+  document.getElementById('prof-streak').textContent = state.streak;
+  const avg = Math.round(state.scores.reduce((a,b) => a+b,0) / state.scores.length);
+  document.getElementById('prof-avg').textContent = avg;
+  document.getElementById('prof-remaining').textContent = state.totalDays - state.currentDay;
+}
+
+function getAuraLabel(score) {
+  if (score <= 40) return 'Low Energy';
+  if (score <= 70) return 'Improving';
+  if (score <= 90) return 'Strong Aura';
+  return 'Elite Presence';
+}
+
+function goToUpload() {
+  state.photoUploaded = false;
+  const drop = document.getElementById('photo-drop');
+  drop.classList.remove('has-photo');
+  drop.innerHTML = '<i class="ti ti-camera" aria-hidden="true"></i><p><strong>Tap to upload photo</strong></p><p style="margin-top:4px;">Front-facing, good lighting works best</p>';
+  document.getElementById('analyze-btn').style.opacity = '0.4';
+  document.getElementById('analyze-btn').style.pointerEvents = 'none';
+  goTo('upload');
+  setActiveNav('upload');
+}
+
+function simulateUpload() {
+  const drop = document.getElementById('photo-drop');
+  drop.classList.add('has-photo');
+  drop.innerHTML = '<i class="ti ti-check" aria-hidden="true"></i><p><strong>Photo added!</strong></p><p style="margin-top:4px;">Looking good — ready to analyse</p>';
+  state.photoUploaded = true;
+  document.getElementById('analyze-btn').style.opacity = '1';
+  document.getElementById('analyze-btn').style.pointerEvents = 'auto';
+}
+
+function runAnalysis() {
+  if (!state.photoUploaded) return;
+  goTo('analysis');
+  const base = 55 + state.streak * 2 + Math.floor(Math.random() * 12);
+  const score = Math.min(99, Math.max(40, base));
+  state.scores.push(score);
+  state.currentDay = Math.min(state.totalDays, state.currentDay + 1);
+  state.streak += 1;
+  document.getElementById('an-score').textContent = score;
+  document.getElementById('an-label').textContent = getAuraLabel(score);
+  document.getElementById('analysis-day').textContent = 'Day ' + (state.currentDay - 1) + ' result';
+  const skinVals = ['Good', 'Good', 'Average', 'Needs Work'];
+  const confVals = ['High', 'Moderate', 'Building', 'Moderate'];
+  const glowVals = ['Improving', 'Improving', 'Stable', 'Rising'];
+  const skinV = skinVals[Math.floor(Math.random() * 2)];
+  const confV = confVals[Math.floor(Math.random() * 3)];
+  const glowV = glowVals[score > 70 ? 0 : 1];
+  document.getElementById('an-skin').textContent = skinV;
+  document.getElementById('an-skin').className = 'metric-val ' + (skinV === 'Good' ? 'green' : skinV === 'Average' ? 'orange' : 'red');
+  document.getElementById('an-conf').textContent = confV;
+  document.getElementById('an-glow').textContent = glowV;
+  document.getElementById('an-streak').textContent = '+' + state.streak + ' pts';
+  updateHome();
+  buildChart();
+  buildTimeline();
+}
+
+function buildChart() {
+  const container = document.getElementById('chart-bars');
+  container.innerHTML = '';
+  const max = Math.max(...state.scores, 100);
+  const show = state.scores.slice(-10);
+  show.forEach((score, i) => {
+    const bar = document.createElement('div');
+    bar.className = 'cbar ' + (i === show.length - 1 ? 'highlight' : 'normal');
+    const h = Math.round((score / max) * 100);
+    bar.style.height = h + '%';
+    bar.style.background = i === show.length - 1 ? 'var(--orange)' : 'var(--orange-mid)';
+    bar.title = score + '/100';
+    container.appendChild(bar);
+  });
+}
+
+function buildTimeline() {
+  const container = document.getElementById('timeline-items');
+  container.innerHTML = '';
+  const show = state.scores.slice(-4).reverse();
+  show.forEach((score, i) => {
+    const dayNum = state.currentDay - i;
+    const isLast = i === show.length - 1;
+    const div = document.createElement('div');
+    div.className = 'tl-item';
+    div.innerHTML = `
+      <div class="tl-dot-col">
+        <div class="tl-dot${score < 50 ? ' empty' : ''}"></div>
+        ${!isLast ? '<div class="tl-line"></div>' : ''}
+      </div>
+      <div class="tl-content">
+        <div class="tl-day">Day ${dayNum}</div>
+        <div class="tl-score">${score}/100 — ${getAuraLabel(score)}</div>
+      </div>`;
+    container.appendChild(div);
+  });
+}
+
+function toggleTask(el) {
+  el.classList.toggle('done');
+  const text = el.nextElementSibling;
+  text.classList.toggle('done');
+}
+
+buildChart();
+buildTimeline();
+</script>
